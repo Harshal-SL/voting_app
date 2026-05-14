@@ -213,7 +213,7 @@ docker exec -u root jenkins bash -c "
 
    **General Section:**
    - ✅ Check **GitHub project** (optional)
-   - Project url: Your GitHub repository URL
+   - Project url: `https://github.com/Harshal-SL/voting_app`
 
    **Build Triggers:**
    - ✅ Check **Poll SCM** (optional, for automatic builds)
@@ -222,8 +222,7 @@ docker exec -u root jenkins bash -c "
    **Pipeline Section:**
    - **Definition**: Pipeline script from SCM
    - **SCM**: Git
-   - **Repository URL**: Your Git repository URL
-     - Example: `https://github.com/yourusername/voting-app.git`
+   - **Repository URL**: `https://github.com/Harshal-SL/voting_app.git`
    - **Credentials**: Add if private repository
    - **Branch Specifier**: `*/main` (or `*/master`)
    - **Script Path**: `Jenkinsfile`

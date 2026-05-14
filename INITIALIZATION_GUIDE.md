@@ -231,7 +231,7 @@ git commit -m "Initial commit: voting app with Docker and Jenkins"
 
 **Note:** If using GitHub, push to your repository:
 ```powershell
-git remote add origin https://github.com/your-username/voting_app.git
+git remote add origin https://github.com/Harshal-SL/voting_app.git
 git branch -M main
 git push -u origin main
 ```
@@ -256,7 +256,7 @@ In the Pipeline configuration page:
 - SCM: `Git`
 - Repository URL: 
   - Local: `file:///e/voting_app`
-  - Or GitHub: `https://github.com/your-username/voting_app.git`
+  - Or GitHub: `https://github.com/Harshal-SL/voting_app.git`
 - Branch Specifier: `*/main`
 - Script Path: `Jenkinsfile`
 

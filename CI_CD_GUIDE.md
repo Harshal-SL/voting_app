@@ -74,7 +74,7 @@ docker-compose down
 3. Under **Pipeline**, select:
    - Definition: `Pipeline script from SCM`
    - SCM: `Git`
-   - Repository URL: Your Git repository URL
+   - Repository URL: `https://github.com/Harshal-SL/voting_app.git`
    - Branch Specifier: `*/main`
    - Script Path: `Jenkinsfile`
 4. Save and click **Build Now**

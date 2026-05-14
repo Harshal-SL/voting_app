@@ -95,7 +95,7 @@ git push origin main
    - **Pipeline** section:
      - Definition: `Pipeline script from SCM`
      - SCM: `Git`
-     - Repository URL: `https://github.com/YOUR_USERNAME/YOUR_REPO.git`
+     - Repository URL: `https://github.com/Harshal-SL/voting_app.git`
      - Credentials: (Add if private repo)
      - Branch Specifier: `*/main`
      - Script Path: `Jenkinsfile`

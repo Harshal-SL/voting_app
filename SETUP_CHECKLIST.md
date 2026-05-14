@@ -214,7 +214,7 @@ Choose one option:
   - [ ] Pipeline section:
     - Definition: Pipeline script from SCM
     - SCM: Git
-    - Repository URL: ________________
+    - Repository URL: `https://github.com/Harshal-SL/voting_app.git`
     - Credentials: (add if private repo)
     - Branch Specifier: `*/main`
     - Script Path: `Jenkinsfile`

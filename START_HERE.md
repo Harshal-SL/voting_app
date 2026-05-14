@@ -328,7 +328,7 @@ See **JENKINS_SETUP_GUIDE.md** for OS-specific instructions
 2. **Configure:**
    - Pipeline → Definition: **Pipeline script from SCM**
    - SCM: **Git**
-   - Repository URL: Your Git repository URL
+   - Repository URL: `https://github.com/Harshal-SL/voting_app.git`
    - Branch: `*/main`
    - Script Path: `Jenkinsfile`
 3. **Save**
