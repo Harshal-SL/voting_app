@@ -28,28 +28,20 @@ pipeline {
 
         stage('Lint & Test Backend') {
             steps {
-                script {
-                    dir('backend') {
-                        try {
+                catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
+                    script {
+                        dir('backend') {
                             if (isUnix()) {
                                 sh '''
                                     docker run --rm \
                                     -v "$PWD":/app \
                                     -w /app \
                                     node:20-alpine \
-                                    sh -c "
-                                        npm ci
-                                        npm test || true
-                                    "
+                                    sh -c "npm ci && (npm test || true)"
                                 '''
                             } else {
-                                bat '''
-                                    docker run --rm -v "%cd%":/app -w /app node:20-alpine sh -c "npm ci && (npm test || exit 0)" || exit 0
-                                '''
+                                bat 'docker run --rm -v "%cd%":/app -w /app node:20-alpine sh -c "npm ci && (npm test || true)"'
                             }
-                            echo "Backend tests completed (failures ignored)"
-                        } catch (Exception e) {
-                            echo "Backend tests failed but continuing: ${e.message}"
                         }
                     }
                 }
@@ -58,28 +50,20 @@ pipeline {
 
         stage('Lint & Test Frontend') {
             steps {
-                script {
-                    dir('frontend') {
-                        try {
+                catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
+                    script {
+                        dir('frontend') {
                             if (isUnix()) {
                                 sh '''
                                     docker run --rm \
                                     -v "$PWD":/app \
                                     -w /app \
                                     node:20-alpine \
-                                    sh -c "
-                                        npm ci
-                                        npm test -- --watchAll=false --coverage || true
-                                    "
+                                    sh -c "npm ci && (npm test -- --watchAll=false --coverage || true)"
                                 '''
                             } else {
-                                bat '''
-                                    docker run --rm -v "%cd%":/app -w /app node:20-alpine sh -c "npm ci && (npm test -- --watchAll=false --coverage || exit 0)" || exit 0
-                                '''
+                                bat 'docker run --rm -v "%cd%":/app -w /app node:20-alpine sh -c "npm ci && (npm test -- --watchAll=false --coverage || true)"'
                             }
-                            echo "Frontend tests completed (failures ignored)"
-                        } catch (Exception e) {
-                            echo "Frontend tests failed but continuing: ${e.message}"
                         }
                     }
                 }
@@ -88,8 +72,7 @@ pipeline {
 
         stage('Build Docker Images') {
             steps {
-                echo "Building Docker images..."
-
+                echo 'Building Docker images...'
                 script {
                     dir('backend') {
                         if (isUnix()) {
@@ -127,8 +110,7 @@ pipeline {
 
         stage('Security Scan') {
             steps {
-                echo "Running Trivy security scan..."
-
+                echo 'Running Trivy security scan...'
                 script {
                     if (isUnix()) {
                         sh '''
@@ -157,10 +139,8 @@ pipeline {
             when {
                 branch 'main'
             }
-
             steps {
-                echo "Logging into Docker Hub..."
-
+                echo 'Logging into Docker Hub...'
                 script {
                     if (isUnix()) {
                         sh '''
@@ -168,38 +148,22 @@ pipeline {
                             -u "$DOCKER_HUB_CREDENTIALS_USR" \
                             --password-stdin
                         '''
-                        
-                        echo "Pushing backend image..."
                         sh """
                             docker push ${BACKEND_IMAGE}:${IMAGE_TAG}
                             docker push ${BACKEND_IMAGE}:latest
-                        """
-
-                        echo "Pushing frontend image..."
-                        sh """
                             docker push ${FRONTEND_IMAGE}:${IMAGE_TAG}
                             docker push ${FRONTEND_IMAGE}:latest
                         """
-
                         sh 'docker logout'
                     } else {
-                        bat '''
-                            echo %DOCKER_HUB_CREDENTIALS_PSW% | docker login -u %DOCKER_HUB_CREDENTIALS_USR% --password-stdin
-                        '''
-                        
-                        echo "Pushing backend image..."
                         bat """
+                            echo %DOCKER_HUB_CREDENTIALS_PSW% | docker login -u %DOCKER_HUB_CREDENTIALS_USR% --password-stdin
                             docker push ${BACKEND_IMAGE}:${IMAGE_TAG}
                             docker push ${BACKEND_IMAGE}:latest
-                        """
-
-                        echo "Pushing frontend image..."
-                        bat """
                             docker push ${FRONTEND_IMAGE}:${IMAGE_TAG}
                             docker push ${FRONTEND_IMAGE}:latest
+                            docker logout
                         """
-
-                        bat 'docker logout'
                     }
                 }
             }
@@ -209,10 +173,8 @@ pipeline {
             when {
                 branch 'main'
             }
-
             steps {
-                echo "Deploying containers..."
-
+                echo 'Deploying containers...'
                 script {
                     if (isUnix()) {
                         sh '''
@@ -220,30 +182,18 @@ pipeline {
                             docker compose pull
                             docker compose up -d
                         '''
-                        
-                        echo "Waiting for services..."
                         sh 'sleep 15'
-
-                        echo "Checking frontend health..."
                         sh 'curl -f http://localhost:80 || exit 1'
-
-                        echo "Checking backend health..."
                         sh 'curl -f http://localhost:5000/api/health || exit 1'
                     } else {
                         bat '''
-                            docker compose down || exit 0
+                            docker compose down
                             docker compose pull
                             docker compose up -d
                         '''
-                        
-                        echo "Waiting for services..."
                         bat 'timeout /t 15 /nobreak'
-
-                        echo "Checking frontend health..."
-                        bat 'curl -f http://localhost:80 || exit 1'
-
-                        echo "Checking backend health..."
-                        bat 'curl -f http://localhost:5000/api/health || exit 1'
+                        bat 'curl -f http://localhost:80'
+                        bat 'curl -f http://localhost:5000/api/health'
                     }
                 }
             }
@@ -253,7 +203,6 @@ pipeline {
     post {
         always {
             echo 'Cleaning Docker resources...'
-
             script {
                 if (isUnix()) {
                     sh 'docker system prune -f || true'
@@ -262,11 +211,9 @@ pipeline {
                 }
             }
         }
-
         success {
             echo 'Pipeline completed successfully!'
         }
-
         failure {
             echo 'Pipeline failed!'
         }
